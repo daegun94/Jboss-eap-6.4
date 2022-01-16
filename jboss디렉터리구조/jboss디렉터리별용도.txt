@@ -1,0 +1,48 @@
+JBossEULA.txt->
+
+
+LICENSE.txt->
+
+
+appclient->클라이언트 애플리케이션 컨테이너(노드)를 사용할 때 설정 정보가 포함
+
+
+bin->Red Hat Enterprise Linux 및 Microsoft Windows 용 JBoss EAP 6 시작 스크립트 및
+유틸리티 실행 스크립트가 포함되어 있음
+
+
+bundles->JBoss EAP 6 내부 기능에 대한 OSGi 번들이 포함되어있음
+
+
+docs->라이선스 파일, 스키마 및 샘플들이 있음
+
+
+domain->JBoss EAP 6를 도메인 모드로 실행하는 경우 사용되는 설정 및 배포 컨텐츠 영역
+
+
+jboss-modules.jar->모듈을 로드하는 부트 스크랩 매커니즘이 포함되어 있음
+
+
+modules->JBoss EAP 6 및 애플리케이션에서 필요 시 동적으로 로드하는 모듈,jar 파일들이 보관된
+디렉터리
+(모듈은 클래스 로딩 및 의존성 관리에 사용되는 클래스의 논리적 그룹
+모듈은 정적 또는 동적 로딩이 가능
+모듈은 요청이 있는 경우에만 로드되고 이것을 동적 클래스 로딩이라고 함
+JBoss EAP 시작하기 전에 정적 모듈이 존재
+JBoss EAP에 포함되는 각 API는 정적 모듈
+정적 모듈은 미리 정의되어 있지만, 마찬가지로 요청이 있을 경우에만 로드됨
+동적 모듈은 배포 시에 필요할 때 즉, 요청이 있을 경우에만 로드됨
+
+
+
+
+standalone->JBoss EAP 6를 스탠드얼론 모드로 실행하는 경우 사용되는 설정 파일 및 배포
+콘텐츠 영역
+
+
+version.txt->
+
+
+welcome-content->기본 설치 포트 8080에서 사용하는 Welcome 웹 앱 콘텐츠가 포함되어 있으며
+기본 컨텍스트 루트 애플리케이션
+

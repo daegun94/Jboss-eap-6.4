@@ -1,0 +1,14 @@
+1.window powershell
+cd jboss-vagrant
+vagrant up jboss
+
+
+1.vagrant사용자 sudoer권한주기
+visudo etc/sudoers
+편집 후 ctrl+x Y
+엔터
+
+2. vagrantfile에 맞게 ip등 설정이 되었는지 확인
+sudo apt update
+sudo apt install net-tools
+ifconfig

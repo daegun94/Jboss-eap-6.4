@@ -1,0 +1,112 @@
+https://taetaetae.github.io/2019/08/04/apache-load-balancing/
+
+아파치2
+기본디렉토리
+/etc/apache2
+웹앱서버와 연결하려면 mod_jk필요
+sudo apt instlal libapache2-mod-jk
+설치하면
+
+/etc/apache2/mods-available경로에 jk.load파일 존재
+
+/etc/libapache2-mod-jk/worker.properties
+
+https://ktdsoss.tistory.com/152
+
+/etc/apache2/mods-available
+http-jk.conf-> mod_jk.conf파일을 로딩하도록 include라인 추가
+mod_jk.conf->Jkmount와 jkworkers파일을지정하여
+처리할 url와 jboss인스턴스지정
+
+cd /etc/libapache2-mod-jk
+vi workers.properties
+
+https://madplay.github.io/post/apache-tomcat-modjk
+
+https://taetaetae.github.io/2019/08/04/apache-load-balancing/
+
+DocumentRoot JkMount /* balancer
+
+
+
+
+1.아파치 설치
+sudo apt update
+sudo apt install apache2
+
+2.mod_jk설치(ajp connector) 웹앱서버와 연결하기위한 모듈
+sudo apt instlal libapache2-mod-jk
+mod_jk.co파일이 중요한데
+sudo find / -name mod_jk.co 경로위치 복사해둠 
+
+3.아파치가 설치되면 
+환경설정 파일이 있는 디렉토리와 웹앱과 연결하기위한 디렉토리 설명 및 설정
+/etc/apache2
+/etc/libapache2-mod-jk (worker.properties가 있는 곳)
+/etc/apache2/mods-available/http-jk.conf
+기본 80포트로 들어오는 경로 관리 디렉토리는
+/etc/apache2/apache2.conf
+이 설정파일에는 먼저 모듈 conf파일을 참조하게 만들 수 있음
+ex) Include mods-available/httpd-jk.conf
+또한 80포트로 들어오는  경로에 대해 설정할 수 있음
+내가 만든 디렉토리로 경로를 유도할 경우
+내가 만든 디렉토리로 오는 권한을 허용해줘야함
+<Directory />
+        Options FollowSymLinks
+        AllowOverride None
+        Require all granted
+
+/etc/apache2/sites-available/000-default.conf
+이 파일은 80포트로 들어올 경우 
+리다이렉션 하는 설정을 할 수 있음.
+DocumentRoot 기본설정값인데
+이 부분을 지우고
+JkMount /* balancer
+
+/etc/apache2/mods-available/httpd-jk.conf
+이 파일은
+웹앱서버와 커넥해주는 설정을 하는 파일임 중요!
+먼저 모듈을 등록해주기위해
+LoadModule jk_module /usr/lib/apache2/modules/mod_jk.so
+JkMount   /*   balancer
+80포트로들어오는 모든 요청은 balancer라는 워커로 보냄
+jkworkersfile에 명시된 경로의 worker 파일안의 balancer로 보내주는것임
+
+/etc/libapache2-mod-jk의 workwers.properties가 웹앱 설정을 하는 것임
+
+workers.list=balancer ->worker의 name(list도가능)을 명시하는곳
+worker.node1.port=8109
+worker.node1.host=192.168.56.101
+worker.node1.type=ajp13
+worker.node2.port=8209
+worker.node2.host=192.168.56.101
+worker.node2.type=ajp13
+#lbfactor는 workers, 즉 각 Tomcat 인스턴스의 부하 분산 지수이다
+. 보통은 1로 설정하여 모든 Tomcat 인스턴스를 균등하게 분산하지만
+ 만일 특정 Tomcat에 더 많은 부하를 넣고자 한다면 이를 수정하여 사용한다.#
+worker.node1.lbfactor=1
+worker.node2.lbfactor=1
+
+
+worker.balancer.type=lb
+worker.balancer.balance_workers=node1,node2
+worker.stat.type=status
+
+
+4. 시스템 재시작 및 에러시 로그 확인.
+systemctl restart apache2
+
+mod_jk모듈 로그는 /var/log/apache2/mod_jk.log에 있음
+sudo tail -f /var/log/apache2/mod_jk.log
+
+
+5.jboss ajp 설정 파일로 이동.
+
+
+
+
+
+
+
+
+

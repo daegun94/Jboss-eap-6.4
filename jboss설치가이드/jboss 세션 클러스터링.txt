@@ -1,0 +1,56 @@
+jboss eap 6을 사용한 웹 구축에도
+로드밸런싱과 failover를 위해서 클러스터링 기능을 사용
+jboss는 java프로세스 단위로 클러스터링을 구성하며 서버의 물리적인 위치와 관계없이 구성이 가능.
+
+jGroups
+멀티캐스트 프로토콜을 사용하여 신뢰성 높은 통신을 할 수 있도록 구현된 네트워크 통신 라이브러리
+jboss eap 6의 크러스터링 구현, infinispan의 네트워크 캐시 구현에 사용
+
+jgroups 내에 가장 중요한 프로토콜은 가입과 탈퇴,장애감지,파티션 결합,ping
+
+
+https://solbel.tistory.com/610
+
+ha,full-ha파일에 jgroups 서브시스템이 설정되어 있음.
+서브시스템에는 멀티캐스트를 사용하는 udp프로토콜과 tcp를 사용하는 프로코톨 스택이 정의되어있고
+기본적으로 udp사용하도록 설정되어있음.
+
+./standalone.sh --server-config=standalone-ha.xml
+https://atl.kr/dokuwiki/doku.php/jboss_eap_6.x_standalone_session_clustering
+
+1.standalone 파일 복사(미리 지정해둔 디렉토리 ex home/vagrant/app/nodes(스탠드얼론모드 각각의 서버인스턴스 생성디렉토리)
+
+sudo cp -R /home/vagrant/jboss-eap-6.4/standalone /home/vagrant/app/nodes
+ mv /home/vagrant/app/nodes/standalone /home/vagrant/app/nodes/node1
+ mv /home/vagrant/app/nodes/standalone /home/vagrant/app/nodes/node2
+
+DATE=`date +%Y%m%d%H%M%S`
+
+##### JBOSS Directory Setup #####
+export JBOSS_HOME=/home/vagrant/jboss-eap-6.4
+export DOMAIN_BASE=/home/vagrant/jboss-eap-6.4/app/nodes
+export SERVER_NAME=node1
+export JBOSS_LOG_DIR=/home/vagrant/jboss-eap-6.4/LOG/node1
+
+if [ e$JBOSS_LOG_DIR = "e" ]
+then
+    export JBOSS_LOG_DIR="$JBOSS_HOME/log"
+fi
+
+if [ e$JBOSS_LOG_DIR != "e" ]
+then
+    export JBOSS_LOG_DIR="$JBOSS_LOG_DIR"
+fi
+
+
+##### Configration File #####
+#export CONFIG_FILE=standalone-full-ha.xml
+export CONFIG_FILE=standalone-ha.xml
+
+export EXTERNAL_DEPLOYMENT=/svc/test/was/domains/applications
+
+export HOST_NAME=master
+export NODE_NAME=$SERVER_NAME
+export PORT_OFFSET=100
+
+export JBOSS_USER=vagrant

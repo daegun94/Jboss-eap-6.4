@@ -1,0 +1,17 @@
+jboss eap 6을 사용한 웹 구축에도
+로드밸런싱과 failover를 위해서 클러스터링 기능을 사용
+jboss는 java프로세스 단위로 클러스터링을 구성하며 서버의 물리적인 위치와 관계없이 구성이 가능.
+
+jGroups
+멀티캐스트 프로토콜을 사용하여 신뢰성 높은 통신을 할 수 있도록 구현된 네트워크 통신 라이브러리
+jboss eap 6의 크러스터링 구현, infinispan의 네트워크 캐시 구현에 사용
+
+jgroups 내에 가장 중요한 프로토콜은 가입과 탈퇴,장애감지,파티션 결합,ping
+
+
+ha,full-ha파일에 jgroups 서브시스템이 설정되어 있음.
+서브시스템에는 멀티캐스트를 사용하는 udp프로토콜과 tcp를 사용하는 프로코톨 스택이 정의되어있고
+기본적으로 udp사용하도록 설정되어있음.
+
+./standalone.sh --server-config=standalone-ha.xml
+

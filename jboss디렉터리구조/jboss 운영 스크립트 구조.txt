@@ -1,0 +1,13 @@
+env.sh->JBoss 운영 환경 주요 환경 설정 스크립트
+start.sh -> JBoss Standalone 인스턴스 실행 스크립트
+shutdown.sh -> JBoss Standalone 인스턴스 정상 종료 스크립트
+kill.sh -> JBoss 강제 종료 스크립트
+nohup.sh -> nohup로그의 tail 보기 스크립트
+tail.sh -> JBoss server.log파일 tail 보기 스크립트
+status.sh -> JBoss 인스턴스가 실행 중인지 체크하는 스크립트
+jboss-cli.sh -> JBoss CLI 모드로 접속하는 스크립트
+jconsole.sh ->JConsole로 접속하여 JMX MBean정보를 확인하기 위한 스크립트
+add-user.sh -> 사용자를 추가하기 위한 스크립트
+dump.sh -> 인스턴스 장애 시 Java 프로세스의 스레드 덤프를 받기 위한 스크립트
+env.properties -> Java 시스템 프로퍼티를 설정하는 파일
+인코딩 설정이 정의되어있음.

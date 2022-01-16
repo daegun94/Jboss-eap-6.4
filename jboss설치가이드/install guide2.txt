@@ -1,0 +1,63 @@
+<install guide link>
+JBoss 6.4
+
+<<설치다운로드경로>: https://developers.redhat.com/products/eap/download
+
+<eap 6관련설정> :https://jboss6.openmaru.io/docs/03.JBossEAP6_Install.html,
+http://www.opennaru.com/jboss/jboss-eap-getting-started/
+
+<jboss 시작 정지 실행파라미터관련링크>: https://chanchan-father.tistory.com/670
+
+<외부접속 및 스탠드얼론 웰컴페이지>: https://m.blog.naver.com/vinnsmedia/221076930359
+
+1.ubuntu jdk설치(6.4와 호환되는 jdk 8버전 설치!)
+sudo apt update
+sudo apt install openjdk-8-jdk
+
+2.java home path 등록.
+which java 
+ls -al (경로 따라가서) 
+
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
+export PATH=$PATH:$JAVA_HOME/bin
+
+3.jboss설치파일,jdbc드라이버설치파일 scp로 복사
+ scp jboss-eap-6.4.zip vagrant@192.168.56.101:/home/vagrant
+
+4.설치후 jboss bin파일로 이동하여 관리자 등록(보안상의 이유로 관리자 아이디가 디폴트없음 새로 생성해야함)
+
+5.스탠드얼론모드시작
+bin ./standalone.sh
+
+6.<DB연동>
+jar배포방식 -> bin파일의 ./jboss-cli.sh 접속 후
+deploy jar_path
+
+module배포방식-> ./jboss-cli.sh 접속 후 
+ module add --name=system.layers.ext.META-INF.services --resources=/home/vagrant/jboss-eap-6.4/mariadb-java-client-2.7.4.jar
+/subsystem=datasources/jdbc-driver=mariadb:add(driver-module-name=system.layers.ext.META-INF/services,driver-name=mariadb)
+
+or 
+module add --name=system.layers.ext.org.mariadb --resources=/home/vagrant/jboss-eap-6.4/mariadb-java-client-2.7.4.jar
+/subsystem=datasources/jdbc-driver=mariadb:add(driver-module-name=system.layers.ext.org.mariadb,driver-name=mariadb)
+(standalone.xml에서 확인가능)
+
+
+7.드라이버 모듈을 등록하는 것을 했으니 
+이제 데이터소스시스템을 만들어야함
+관리자매니저 홈페이지접속(local:9990)
+
+데이터소스에 대한 JNDI이름을 등록함
+
+**여기서 데이터소스란:데이터 베이스에 연결하는 방법을 캡슐화 한것.
+DB드라이버나 URL에대한 정보를 서버에서 따로 관리하여 애플리케이션들은 데이터소스를 
+네이밍 서비스에서 룩업하여 가져다가 데베사용가능
+이 네이밍서비스는 JNDI(Java Naming and Directory interface)를 사용하기때문에 
+룩업할 때 이 데이터소스의 JNDI만 있으면댐
+
+NAME:Mariadb_DS
+JNDI Name:java:jboss/datasources/MariaDB_S
+
+connection URL:
+
+

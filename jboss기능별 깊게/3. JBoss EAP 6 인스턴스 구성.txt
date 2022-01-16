@@ -1,0 +1,15 @@
+<JBoss EAP 6 설치>
+1.메모장 1의 내용을 참고하여 설치할 디렉터리를 생성
+sudo mkdir -p /CLOUD/JBOSS/domains
+sudo mkdir -p /CLOUD/JBOSS/LOG/server11
+sudo mkdir -p /CLOUD/JBOSS/LOG/server12
+sudo mkdir -p /CLOUD/WebApp
+
+2. JBoss EAP 6.2를 /CLOUD/JBOSS 디렉터리에 설치
+cp jboss-eap-6.2.0.zip /CLOUD/JBOSS
+cd /CLOUD/JBOSS
+unzip jboss-eap-6.2.0.zip
+
+3. /CLOUD/JBOSS 디렉터리를 'jboss'사용자가 사용할 수 있도록 권한을 줌
+sudo chown -R jboss:jboss /CLOUD/JBOSS
+

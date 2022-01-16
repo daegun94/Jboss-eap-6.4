@@ -1,0 +1,14 @@
+관리자 등록 후
+JBOSS_HOME디렉토리의 domain폴더를 새로운 simpleDomain으로 파일 전체 복사
+cp -R domain simpleDomain
+
+신규 도메인 host.xml파일 수정
+새로 복사된 simpleDomain 디렉터리에 "configuration"디렉터리에 있는
+host.xml파일을 수정
+<host name = "master"-> "simpleDomain">
+
+JBOSS_HOME/bin디렉터리에 가서
+해당 명령어 실행
+
+./domain.sh -Djboss.domain.base.dir/JBOSS_HOME/simpleDomain
+

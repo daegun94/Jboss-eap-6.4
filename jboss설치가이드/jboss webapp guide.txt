@@ -1,0 +1,82 @@
+https://chanchan-father.tistory.com/778?category=843153
+(참고링크)
+
+
+0.sudo apt install maven
+1.pom.xml파일 있는 곳 가서 sudo mvn install
+2.tartget안에있는 war파일 standalone/configuration/deployments에 복사
+3.configuration standalone.xml 에 deployments scanner 경로확인. 다르다면
+2번 수정
+standalone.xml의 interface name public부분을 웹 서비스 허용할 ip대역 으로 수정
+
+
+
+
+
+
+
+
+1.jboss 파일 압축해제 한 후 원하는 디렉토리에 다운로드
+->JBOSS_HOME 기본디렉토리 경로가됨.
+
+2.jboss 사용자 추가.
+(웹 앱 서버프로세스는 일반 사용자계정으로 기동)
+보안사의 이유로 root계정을 사용하지 않는 것이 좋음.
+adduser jboss
+
+3.jboss사용자에게 jboss 디렉토리 권한 주기
+sudo chown -R jboss:jboss /home/vagrant/jboss디렉토리
+이후 디렉토리 복사
+sudo usermod -d /home/vagrant jboss
+
+4.nginx /etc/nginx/nginx.conf
+proxy path 추가
+server {
+                listen 80;
+
+           location / {
+
+                 proxy_pass http://192.168.56.101:8180/webapp/;
+
+                }
+
+                        }
+
+
+4.jboss로 로그인하여 작업 수행.
+standalone 디렉터리를 구성하려는 서버 인스턴스 디렉터리로 복사
+cp -R standalone /home/vagrant/test/domains/server11
+
+5.스크립트복사
+github에서 다운로드한 스크립트 파일들을 JBoss 인스턴스 디렉터리로 복사.
+git 스크립트 주소로가서
+cp *.sh /home/vagrant/test/domains/server11
+cp *.properties /home/vagrant/test/domains/server11
+
+6.스크립트 파일에 실행 권한을 줌
+chmod u+x /home/vagrant/test/domains/server11/*.sh
+
+7.env.sh를 설치한 jboss환경에 맞추어 변경
+export JBOSS_HOME=/home/vagrant/test/jboss-eap-6.4
+export DOMAIN_BASE=/home/vagrant/test/domains
+export SERVER_NAME=server11
+export JBOSS_LOG_DIR=/home/vagrant/test/LOG/server11
+export PORT_OFFSET=100
+export JBOSS_USER=jboss
+##### Bind Address #####
+export BIND_ADDR=192.168.56.101
+export MULTICAST_ADDR=230.1.0.1
+export JMS_MULTICAST_ADDR=231.7.0.1
+export MODCLUSTER_MULTICAST_ADDR=224.0.1.105
+export MGMT_ADDR=192.168.56.101
+
+8.배포 스캐너 설정.
+별도의 디렉터리를 애플리케이션 배포 디렉터리로 사용할 수 있도록 배포 스캐너를 설정
+standalone의 어떤프로파일을 참고하는지 env파일에서 확인 후
+configuration디렉토리의 standalone.xml 편집
+
+<deployment-scanner name="external-deployment-scanner" 
+path="${jboss.external.deployment:/home/vagrant/test/domains/server11/deployments}" scan-interval="5000" auto-deploy-exploded="false"/>
+
+
+9.JBoss 인스턴스 시작 -> ./start.sh  ./kill.sh 

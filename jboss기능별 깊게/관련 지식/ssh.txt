@@ -1,0 +1,24 @@
+ssh -v 
+open ssh 설치확인
+
+https://docs.microsoft.com/ko-kr/windows-server/administration/openssh/openssh_install_firstuse
+Get-Service -Name sshd | Set-Service -StartupType Automatic
+Start-Service sshd
+
+ssh shell접속시 파워셀로
+New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force
+
+authorized_keys생성
+New-Item -ItemType file "$ENV:UserProfile\.ssh\authorized_keys"
+
+Get-Service sshd, ssh-agent
+Set-Service sshd -StartupType Automatic
+Set-Service ssh-agent -StartupType Automatic
+Get-Service sshd, ssh-agent
+Restart-Service -Name sshd, ssh-agent -Force
+Get-Service -Name ssh-agent,sshd
+
+C:\ProgramData\ssh의 config파일 authenkeys와 맨 마지막 다 주석처리
+
+
+scp 원본파일위치 원격사용자@주소:디렉토리

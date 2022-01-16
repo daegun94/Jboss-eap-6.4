@@ -1,0 +1,56 @@
+1.관리자 jboss로 접속하여 web(servlet/http) add ajp를추가.
+
+2.standalone-ha.xml설정
+<server name="node1"
+/transactions검색후
+core-environment 부분에 node-identifier="node1"추가
+/web검색하여
+urn:jboss:domain:web부분에
+instance-id="$\{jboss.node.name}"추가
+/udp검색하여
+jgroups의 tcp수정
+ <transport type="TCP" socket-binding="jgroups-tcp"/>
+    <protocol type="TCPPING">
+      <property name="initial_hosts">127.0.0.1[7600],127.0.0.1[7760]</property>
+      <property name="num_initial_members">1</property>
+      <property name="port_range">0</property>
+      <property name="timeout">2000</property>
+    </protocol>
+
+**servername과 instance id는 아파치 worker설정 리스트 값과 같아야함.
+
+웹 서브시스템 설정
+웹 서브시스템에 몇 가지 설정이 필요합니다
+. 먼저 mod_jk 연결을 위해서 세션 ID에 사용할 instance-id를 설정해야 합니다.
+ 이 이름은 mod_jk의 워커 이름과 같아야 합니다.
+
+이미 env.sh 파일에서 '-Djboss.node.name=$NODE_NAME'으로 설정했기 때문에
+ standalone-ha.xml 파일에 ${jboss.node.name}만 설정하면 인스턴스별로 해당 노드 이름이 설정됩니다.
+
+JBoss EAP 6의 근간이 되는 기술이 바로 모듈입니다.
+어떤 jar 파일이던지 모듈로 만들어서 사용할 수 있습니다.
+예를 들면 최근 프로젝트 대부분에서 공통으로 사용하는
+스프링 프레임워크도 모듈로 만들어 사용할 수 있습니다. 
+이렇게 하면 jar 파일들이 모듈에만 있으면 되기 때문에 
+배포할 애플리케이션의 크기가 상당히 줄어들게 됩니다.
+
+
+① 사용자 모듈 디렉터리 설정
+사용자가 추가하는 모듈을 별도의 modules/system/layers/ext 디렉터리로 
+사용할 수 있도록 설정합니다.
+
+$ cd /CLOUD/JBOSS/jboss-eap-6.2/modules
+$ vim layers.conf
+ 
+$JBOSS_HOME/modules/layers.conf 파일을 다음과 같이 작성합니다.
+
+layers=ext
+
+ext 디렉터리를 생성하여 사용자 모듈들을 사용할 수 있도록 합니다.
+$ mkdir -p /CLOUD/JBOSS/jboss-eap-6.2/modules/system/layers/ext
+ 
+데이터 베이스 드라이버를 모듈화할 때도 ext 디렉터리에 저장하면 됩니다.
+
+
+
+

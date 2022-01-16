@@ -1,0 +1,26 @@
+■ Standalone mode
+
+https://blog.naver.com/PostView.nhn?blogId=gkxmqkedk&logNo=221839155922
+
+ - standalone.xml , standalone-ha.xml , standalone-full.xml , standalone-full-ha.xml 4가지 설정 파일 
+
+ - 클러스터링 된 서버 인스턴스들간의 동기화는 관리자의 역할
+
+프로파일을 운영 중 변경 불가능하다.
+
+장점
+
+- 초기 구성이 단순, 긴급 증설시 빠르게 작업 가능
+
+- 잘못된 config로 인한 문제 발생시 장애 확산 범위 적음(장비끼리 독립적 구성이기 때문)
+
+- Domain으로 구성하지 않더라도 HA등 구성 가능
+
+
+
+단점
+
+- 각각 서버에 대한 관리가 필요하여 운영시 관리 비용 증가 (10개인스턴스 10번작업 필요, 1개 앱을 10회 배포)
+
+
+

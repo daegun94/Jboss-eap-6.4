@@ -1,0 +1,92 @@
+참고링크: https://blogger.pe.kr/885
+
+1. sudo apt install mariadb-server
+
+2. sudo apt install mariadb-client
+(mariadb에 접속하기 위한 다양한 도구가 포함되어있음)
+
+3. sudo mysql_mysql_secure_installation
+(mariadb의 계정과 보안설정등을 수행하는 스크립트를 실행)
+
+4. 접속 
+mysql -u root -p 명령을 root 
+
+데이터베이스 생성: CREATE DATABASE 이름;
+생성된 데이터베이스 확인: SHOW DATABASES;
+작업 전 데이터베이스 선택:USE daegun;
+데이터베이스 삭제: DROP DATABASE 이름;(DROP 권한이 필요)
+데베 mysql로 변경 USE mysql;
+(외부 접속용 사용자 생성->CREATE USER '사용자명'@'%' IDENTIFIED BY '비밀번호';
+(로컬 접속용 사용자 새성->CREATE USER '사용자명'@'localhost' IDENTIFIE BY '비밀번호';
+사용자 확인: SELECT HOST,SER,PASSWORD FROM user;
+외부 접속용 사용자 삭제
+DROP SER '사용자명'@'%';
+외부 접속용 사용자에게 권한 추가
+GRANT ALL PRIVILEGES ON 데벰ㅇ.* TO '사용자명'@'%';
+로컬 접속용 사용자에게 권한 추가
+GRANT ALL PRIVILEGES ON 데베명.* TO '사용자명'@'localhost';
+
+FLUSH PRIVILEGES;(새로고침)
+
+
+5.데이터베이스 원격접속 허용.
+cd /etc/mysql/mariadb.conf.d/50-server.cnf
+bind-address를 주석처리
+service mysql restart
+
+4. JDBC드라이버 다운로드
+https://mariadb.com/kb/en/installing-mariadb-connectorj/
+
+5. jar파일 복사
+scp jar파일 vagrant@192.168.56.~:/home/vagrant
+
+6. $jboss_home/bin
+CLI관리모드 실행
+./jboss-cli.sh
+connect
+deploy jar파일경로.
+
+7.웹 관리콘솔 접속후 DataSource 속성등록
+JNDI 이름을 등록
+configuration -> datasources Add 클릭
+Name: MariaDB_DS
+JNDI Name: java:jboss/datasources/MariaDB_DS
+
+connection URL: jdbc:mariadb://192.168.56.104:3306/test_data
+test
+159654
+
+mysql -u test -p 159654 -h 192.168.56.104
+
+7.<cli 모듈로 등록하는 방법> 모듈등록시엔 /subsystem명령어의 jdbc-driver이름을 바꿔줘야한다.(jboss관리자홈페이지에서 표시되는 이름임
+bin ./jboss-cli.sh
+$JBOSS_HOME/modules/system/layers에서
+layers.conf파일 생성후 layers=ext
+ext 경로에 모듈이름의 org부터 들어감(jar tvf .jar검색 후 디렉토리 경로 모듈네임과 일치시켜야함)
+module add --name=system.layers.ext.org.mariadb --resource=jar경로
+/subsystem=datasources/jdbc-driver=mariadb:add(driver-module-name=system.layers.ext.org.mariadb,driver-name=mariadb) (데이터소스에 모듈등록)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

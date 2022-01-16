@@ -1,0 +1,30 @@
+JAVA EE(Enterprise Edition)는 자바를 이용한 서버측 개발을 위한 플랫폼.
+PC에서 동작하는 표준 플랫폼인 JAVA SE에 부가하여
+WAS에서 동작하는 장애복구 및 분산 멀티티어를 제공하는 자바 SW기능을 추가한 플랫폼
+
+JBOSS-WildFly(와일드플라이)
+자바를 기반으로 한 오픈 소스 미들웨어의 총칭
+
+JBoss EAP vs openshift차이와 jboss개념 정리 링크
+https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.2/html/getting_started_with_jboss_eap_for_openshift_online/introduction?extIdCarryOver=true&sc_cid=701f2000001OH7EAAW
+
+*****************************JBoss EAP(Enterprise Application Platform 7)특징**************
+고가용성 클러스터링,메시징 및 분산 캐싱과 같은 기능에 대해 사전 구성된 옵션을 제공
+여기에는 필요할 때만 서비스를 활성화할 수 있는 모듈식 구조가 포함되어 있어
+시작속도가 향상
+웹 기반 관리 콘솔 인터페이스(CLI)를 사용하면 스크립트를 작성하고 작업을 자동화하는 기능 추가
+JBoss EAP에는 Java EE 애플리케이션을 신속하게 개발,배포 및 실행할 수 있는
+API 및 개발 프레임워크가 포함되어 있음.
+이러한 JAVA EAP용 컨테이너화된 이미지를 제공하여
+개발자는 하이브리드 환경에 배포되는 APP를 빠르고 쉽게 구축 및 확장 테스트까지 가능
+*******************************************************************************************************
++a
+
+엔터프라이즈 환경에서 미들웨어가 갖춰야하는 대용량 트랜잭션,고가용성을 위한 클러스터링,
+메시징,분산 캐싱,고성능 보장
+
+확장 가능한 java EE 기반의 응용 프로그램을 신속하게 개발할 수 있도록
+API와 개발 프레임워크를 제공
+
+개발자가 손쉽게 애플리케이션을 개발,배포,운영할 수 있도록 기능을 제공해주는 애플리케이션 플랫폼
+

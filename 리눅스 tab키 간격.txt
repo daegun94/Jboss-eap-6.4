@@ -1,0 +1,11 @@
+실행중인 파드 갯수 늘리기(디플로이먼트사용)
+kubectl scale deploy nginx-app --replicas=2
+
+리눅스 tab키간격
+~ 디렉토리가서
+vi .vimrc
+
+set expandtab
+set tabstop=2
+set shiftwidth=2
+
