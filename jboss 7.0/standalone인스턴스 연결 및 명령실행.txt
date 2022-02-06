@@ -1,0 +1,13 @@
+<CLI의 관리자 전용 모드>
+원격 서버에 실제로 연결하지 않고도 CLI관리 명령에 엑세스 가능.
+embed-server --server-config=~ --empty-config
+(empty-config는 server-config파일이 존재하지 않을 때 비어있는 xml파일을 생성시켜줌)
+
+<다른 호스트 시스템에 연결하려면 --controller인수사용>
+jboss-cli.sh --connect --controller=ip:port
+
+
+<cli 관리자 포트로 연결 후>
+ls -> 노드 경로의 콘텐츠를 나열
+ls로 뒤에 나올 수 있는 명령어를 확인 후 입력.
+명령어를 입력 후 tab키를 누르면 뒤에 올 수 있는 모든 값을 표시함.

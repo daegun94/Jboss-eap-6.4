@@ -1,5 +1,5 @@
 https://taetaetae.github.io/2019/08/04/apache-load-balancing/
-
+-- 끄적임--
 아파치2
 기본디렉토리
 /etc/apache2
@@ -27,7 +27,7 @@ https://taetaetae.github.io/2019/08/04/apache-load-balancing/
 
 DocumentRoot JkMount /* balancer
 
-
+--끄적임
 
 
 1.아파치 설치

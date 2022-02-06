@@ -1,0 +1,162 @@
+기초개념 링크
+https://docs.oracle.com/cd/E19435-01/819-2222/concepts.html
+
+MOM이란(Message Oriented Middleware)메시징 미들웨어임.
+애플리케이션 메시지를 관리하고 이를 수신자에게 전달하는 역할임.
+이러한 메시징 미들웨어에 엑세스하는 것에 대해 표준화 API를 제공하는 것이 있는데 이것이 JMS(자바 메시지 서비스)임.
+
+MOM 메시징 미들웨어는 서로간의 통신에 있어 일반적으로 보안,라우팅,흐름제어,트랜잭션등의 기능을 제공함.
+즉. JMS는 이러한 기능들에 엑세스할 수 있는 표준 API를 제공한다는 것임.
+
+이제 JMS에 알아보겠음.
+말했다시피 표준 API인데 3가지의 메인 리소스들을 기반으로 함
+ConnectionFactory, Queue, Topic임.
+
+ConnectionFactory는 자신을 포함해서 JMS의 리소스들과 MOM에 대한 연결을 캡슐화 한것임.
+연결에 대한 캡슐화니 Acceptor와 Connector로 구성되어있음.
+커넥터는 한마디로 메시징 서버와의 연결을 위한 개체임.
+좀 더 자세히 말하자면 JBOSS의 메시징하위 시스템인 ActiveMQ라는 서버 연결을 위한 네트워킹 프로토콜 및 매개 변수를 정의한 개체임.
+커넥터는 http프로토콜을 사용하며 http로 소켓바인딩 후 Acceptor를 엔드포인트로 가짐.
+커넥터가 서버와의 연결을 위한 개체라면 서버와의 연결 후 메시지를 받는 클라이언트 입장도 필요할 거 아님?
+즉 그 입장이 Acceptor임 , 커넥터가 엔드포인트로 어셉터 개체를 선언했으니 어셉터는 http프로토콜로 이루어진 listener임.
+요약하자면 ConnectionFactory는 메시지 서버와 클라이언트 간의 연결을 위한 네트워킹 작업이라 볼 수 있음.
+
+연결을 했으면 어떻게 보내고 처리할 것인가를 정의해야겠지? 다음 리소스들이 그 역할을 함.
+
+Queue,Topic은 메시지의 처리 방법이 담긴 리소스라 볼 수 있음.
+Queue는 단일 연결에 대한 선입 선출기반으로 메시지를 배치하고 메시지를 사용하는 구조를 구현한 것임.
+Topic은 하나의 토픽에 게시된 메시지가 해당 토픽을 구독하는 여러 소비자들에게 메시지를 보내는 구조를 구현한 것임.
+
+이렇게 3가지의 JMS리소스들은 JNDI를 생성하고 참조해서 리다이렉션함.
+즉 메시지를 사용하거나 생성하는 애플리케이션이 JNDI를 참조해서 접근한다는 것임.!
+
+위에서 언급한 JBOSS의 메시지 하위 시스템 서버인 ActiveMQ는
+2가지의 하위개체로 이루어져있는데
+jms-bridge란 녀석과 server=default라는 녀석임.
+
+먼저 jms-bridge는  다른(상이한) jms서버간에 자동으로 메시지를 전송하기위한 브릿지 개체임.
+
+2번째로 자주사용하는 내부 JMS서버인 server=default는
+내부 JMS서버답게 JMS리소스(커넥션팩토리,포픽,큐)뿐만아니라, 네트워킹,클러스터링,스토리지등
+모든 MOM양상을 띄는 개체의 특성을 포함하고있음(정의하고있음)
+
+즉 다른 JMS서버를 이용하지 않는다면 모든 메시지 처리에 관한 건 server=default에서 작업하면 됨.
+
+ex) cli로 들어가서 full-ha 프로파일안의 서브시스템 activemq안의 server=default에서
+jms리소스 3가지를 정의해주고 나머지 특별 기능도 정의해주어서 사용하면 된다는 것임.
+
+별도로 말하자면 기존에 클러스터링을 할 경우 복제 네트워크 캐시공간인 인피니스팬을 사용했는데 
+메시징 시스템 클러스터링은 인피니스팬을 사용하지않고
+구성원을 자동으로 연결하는 브릿지를 내부적으로 자동으로 생성하여 다른 복제 트래픽과 영향을 받지 않게 함.
+cluster-password특성을 정의하여 브릿지를 생성해야한다.
+jboss.messaging.cluster.password에서 작성하면 됨.
+
+중간요약하자면 
+이제 메시지관련 모든 기능은 server=default에서 jms리소스들을 작성하면 된다했었음.
+쉽게 이해할 수 있게 애플리케이션과의 연동을 순서대로 얘기해보자면
+
+1.서버 인스턴스 실행
+2.server=default의 jms서버에서 커넥션팩토리,큐,토픽등 리소스에 대한 jndi를 생성해줌.
+3.이 jndi를 애플리케이션 개발코드에서 참조하여 접근
+4.통신
+
+일반적인 통신 순서는 끝났음. 허나 만약에 메시지의 전달과정에 문제가 있다면?
+보안과 장애처리(흐름제어)를 해줘야함.
+이러한 기능뿐만 아니라 다른 특별한 기능들도 모두
+server=default에서 할 수 있음.
+
+이러한 기능들을 다루는 ActiveMQ의 전용 구성요소라 불리는 2가지 녀석들이 있음.
+address-setting, security-setting개체임.
+
+좀 헷갈릴 수도 잇으니 간단히 부등호로 설명하자면(계층구조임) 
+ActiveMQ > server=default(JMS서버) > JMS기본 주요리소스(커넥션팩토리,TOPIC,QUEUE) , address-setting, security-setting(JMS서버의 특정기능)
+
+여기서 잠깐 짚고 넘어가자면.
+애플리케이션과 ActiveMQ는 JMS리소스에 대해서는 JNDI이름을 참조함
+그럼 특정기능도 JNDI를 사용할거라 생각하는데 그렇지 않음. 내부 주소를 사용한다고 함.
+물론 애플리케이션 입장에선 JMS리소스에 접근하기만 하면돼서 JNDI이름만 필요하지만
+접근 후 특정 기능에 대해서는 ActiveMQ(관리자) 측에서 제어해야 하기 때문에 내부 주소를 사용한다고 함.
+JNDI안 쓰는 이유는 자세하게 모르겠음.(굳이 쓸필요가 없어서?내부에서 참조하니..)
+
+EX) 큐 이름이 jms-queue=daegunqueue 라고 만들었으면 내부 주소는 -> jms.queue.daegunqueue임  좀 쉽네 굿
+
+메시징 서비스를 구현하기 위한 작업 순서는
+1. JMS 리소스 생성( 큐,토픽,커넥션팩토리)
+2. JMS 리소스에대한 내부 주소를 구함.( 내부 주소 구하는 방법은 cli로 리소스 생성 후 read-attribute속성으로 찾아보면 됨)
+3. 특정기능이 추가되야 한다면 cli에 address-setting에 JMS리소스를 넣고(내부주소 넣기) 특성을 추가
+
+내용만 이해하고 cli로 직접 보면서 해보기.
+
+여태까지 address-setting을 주로 얘기했음 그도 그럴 것이 대부분의 기능은 다 address-setting에서 함
+
+보안만 security-setting 개체를 사용하는데 
+기능을 정의하는 방법은 address-setting과 같고 
+간단히 설명만 하겠음.
+
+메시징 대상에 대한 권한을 구성하기 위해 security-setting 개체를 구성한다고 함.
+
+security-setting에는 특성이 명명된 역할에서 보유한 권한을 정의하는 유형 역할의 하위 개체가 있습
+니다. 표준 EAP 구성은 모든 사용자가 모든 대상에서 메시지를 게시하고 사용할 수 있는 단일 role=guest
+하위를 포함하는 단일 security-setting=#를 정의합니다.(사실 잘 모르겠음)
+
+
+또 중간점검. 첫 번째 중간점검 땐 개념을 바탕으로 한 기본적인 메시지 통신을 학습했고
+지금 두 번째 중간점검 땐 다양한 기능을 가진 메시지 통신을 학습한거임.
+
+이제 학습할 내용은 메시지별 장애처리(흐름제어)임.
+그 중 메시지 전달 실패 처리에 대해 알아보겠음.
+
+메시지는 다시 사용할 수 있도록 큐나 토픽에 보관이 됨
+그럼 계속 쌓이겠지? 그래서 만료개념이 있음 
+어느정도 시간이되면 DLQ(dead-letter queue)라는 만료 큐로 이동처리 시키는 것임
+이후 이동시킨 후 사후 처리에 대해선 따로 비즈니스 로직을 구현해야함.
+
+만료기능에 대해선 Activemq의 시간지연인 redelivery-delay
+Activemq의 메시지 실패 후 다시 보내기위한 시도를 하는데 이 시도한건에 대해 메시지를 담아 보내는 max-delivery-attempts
+
+사용법은 다음과 같음
+
+ex)
+[standalone@localhost:9990 server=default] ./address-setting=#:read-resource
+{
+ "outcome" => "success",
+ "result" => {
+ ...
+ "dead-letter-address" => "jms.queue.DLQ", -> activemq의 내부 주소 대상 queue에 이동된다.
+ ...
+ "max-delivery-attempts" => 10, ->10번의 시도 후 실패 메시지를
+ ...
+ "redelivery-delay" => 0L, 이동간의 배달 시도간의 지연이 없다(실패한 메시지를 dlq로 이동시 ㅅ???ㅅㅂ)...
+ ...
+이는 모든 대상에 대해(address-setting 개체 이름은 #) 10번의 시도 후 사용할 수 있는 실패한 메시지
+(max-delivery-attempts)가 jms.queue.DLQ 대상(dead-letter-address)으로 이동됨을 의
+미합니다. 배달 시도 간에는 지연이 없습니다(redelivery-delay).
+
+이렇게 일반 메시지큐에서 만료가된 큐로 이동을 시키기위해선 당연히 2개의 큐가 선언되어야하고
+cli로 작업해줘야함
+
+EX)server=default(큐토픽등 정의하는 공간)./address-setting=(큐 토픽을 정의하는 공간에서 큐 토픽에 맞는 기능을 정의하겠다)
+jms.queue.TestQueue(기존에 만든 일반 메시지가 담긴 큐):add(dead-letter-address=jms.queue.TestDLQ,(DLQ담당 큐를 추가)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

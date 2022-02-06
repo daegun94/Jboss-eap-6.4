@@ -34,11 +34,11 @@ jar배포방식 -> bin파일의 ./jboss-cli.sh 접속 후
 deploy jar_path
 
 module배포방식-> ./jboss-cli.sh 접속 후 
- module add --name=system.layers.ext.META-INF.services --resources=/home/vagrant/jboss-eap-6.4/mariadb-java-client-2.7.4.jar
+ module add --name=system.layers.ext.org.mariadb--resources=/home/vagrant/jboss-eap-6.4/mariadb-java-client-2.7.4.jar
 /subsystem=datasources/jdbc-driver=mariadb:add(driver-module-name=system.layers.ext.META-INF/services,driver-name=mariadb)
 
 or 
-module add --name=system.layers.ext.org.mariadb --resources=/home/vagrant/jboss-eap-6.4/mariadb-java-client-2.7.4.jar
+module add --name=system.layers.ext.org.mariadb.jdbc --resources=/home/vagrant/jboss-eap-6.4/mariadb-java-client-2.7.4.jar
 /subsystem=datasources/jdbc-driver=mariadb:add(driver-module-name=system.layers.ext.org.mariadb,driver-name=mariadb)
 (standalone.xml에서 확인가능)
 

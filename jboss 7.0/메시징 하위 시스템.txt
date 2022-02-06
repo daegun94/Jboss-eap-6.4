@@ -1,0 +1,230 @@
+기초개념 링크
+https://docs.oracle.com/cd/E19435-01/819-2222/concepts.html
+
+JMS(자바 메시지 서비스)
+JDBC가 데베 엑세스에대해 표준화 API를 제공하는 것과 같이
+MOM서비스 액세스에 대해 표준화 API를 제공(message-Oriented Middleware)메시징 미들웨어
+
+mom 미들웨어는 일반적으로 보안,라우팅,보장된 전달,서비스 등급 및 트랜잭션등의 기능을 제공함.
+JMS API는 클라이언트에서 MOM으로 자격 증명을 전달하는 방법과 관련이 있음.
+
+이러한 표준화 api인 jms는 3가지 메인 리소스가 기반임.
+ConnectionFactory,Queue,Topic
+
+ConnectionFactory-MOM에 대한 연결을 캡슐화함
+
+Queue: 메시지는 선입,선출 기반으로 검색됨. 제작자는 대기열에 메시지를 배치하고 단일 소비자는 메시지를 제거함
+
+Topic: 하나의 토픽에 게시된 메시지가 해당 토픽을 구독하는 여러 소비자들에게
+전달되는 게시-구독 방식을 구현. 소비자가 오프라인인 경우 MOM은 해당 소비자에게 나중을 전달하기 위해 메시지를 유지함.
+
+이 3가지 기반은 모두 jndi를 참조해서 리다이렉션함
+
+프로파일 중 full이나 full-ha에 기본으로 정의되어있음.
+
+*profile=full-ha/subsystem=messaging-activemq/
+jms-bridge:다른 jms서버 간에 자동으로 메시지를 전송하기위한 브리지를 포함
+
+server=default: 포함된 jms서버.
+JMS리소스에서 ㅔ트워킹,스토리지 및 클러스터링까지 모든 MOM양상을 구성하는 다수의 특성 및 하위 개체를 포함
+.(가장 일반적인 구성인 topic)
+
+
+이런 activemq 클러스터링 구성이 복제에 대해 infinispan을 사용하지 않고
+구성원들을 자동으로 연결하는 브리지를 자동으로 생성하여 복제 트래픽을 받지않는 스마트 메시지 배포 알고리즘을 사용함.
+이 브리지를 생성하려면 cluster-password 특성에 공유된 인증 자격증명이 저장되어야함.
+jboss.messaging.cluster.password값에서 이 특성을 설정.
+
+
+먼저 애플리케이션이 jndi주소를 받아 jms connectionFactory에 연결하고 메시지를 jms queue에 게시함.(queue도 jndi이름 사용)
+그리고 다른 애플리케이션이 같은 jms connectionfactory에 연결하고 jms queue로 부터 메시지를 사용하는 (message-driven bean)이 있는 애플리케이션
+
+1.서버 인스턴스 실행
+2.JMS Connectionfactory jndi생성 (cli 사용 )
+cd /subsystem=messaging-activemq/server=default
+./pooled-connection-factory=custom:add(connectors=[in-vm], entries=[java:/jms/CustomCF])
+
+3.JMS Queue jndi생성 
+웹관리콘솔
+configuration->하위시스템->메시지-activemq-기본값
+콤보상자에서 큐/토픽 클릭 메시징 대상페이지. ADD
+Create JMS Queue 
+
+<저널>
+jms의 지속성은 jms 공급자가  실패하더라도 토픽 또는 큐에서 메시지 전달을 보장하는 기능인데
+일반적으로 jms구현은 지속성 구현에 데베를 씀 
+하지만 activemq는 저널을 사용하여 지속성구현
+ActiveMQ는 파일 시스템 사용의 고유한 접근 방식을 취하며 메시지를 저장하는 파일은 저널로 취급됨.
+즉 저널은 Activemq에서 유지하는 파일집합.(저널이 아닌 단순 파일집합이 있기도함)
+
+저널.
+대용량 메시지를 신속하고 안정적으로 처리하는 데 최적화 되어 있음.
+파일은 고정된 크기로 생성되며 디스크 액세스 성능을 최대화하도록 패딩되어 있음.(레코드나 블록의 맨 나중에 의미없는값들을 추가하여 블록을 고정길이로 맞춤)
+메시지는 저널에 추가됨. 저널 파일 집합은 링 버퍼로 읽거나 쓰이므로 이미 사용된 메시지의 공간은 새로 게시된 메시지에서 다시 사용
+하나의 저널 파일이 가득 차면 ActiveMQ는 다음 파일로 이동됨. 비어있는 저널파일이 없으면 ActivemMQ는 새 파일 생성.
+또한 ActiveMQ에는 이미 사용된 메시지에서 사용하는 공간을 복구하고 메시징 저널 내부의 조각을 제거하는 압축 알고리즘이 있음.
+저널은 필요한 경우 로컬 및 XA트랜잭션을 모두 지원하는 작업을 지원.
+
+
+
+애플리케이션 큐에 대해 사용자 지정 배달 못 한 큐를 구성하고 메시지 저널 파일의 개수와 크기를 변경할 수 있어야함.
+
+
+<기타 메시징 설정> 보안,흐름제어,재배달 activemq의 구성요소 중 address-setting
+대부분의 실제 애플리케이션에는 유사한 설정이 있는 많은 대상이 필요하므로 ->여기서 대상은 queue,topic을 말하는 걸까?
+ActiveMQ는 전용 구성 요소(address-setting,security-setting)에서 대상 외부에 이러한 설정을 배치합니다.
+이는 관리자의 작업 부하를 덜어내고 동일한 애플리케이션에서
+대상에 대해 일관되지 않은 설정이 있을 수 있는 위험을 낮추기 위해 수행됩니다
+
+ActiveMQ의 전용구성요소인 address-setting,security-settings
+
+address-settings 및 security-settings의 두 가지 구성 요소가 있습니다. 첫 번째 요소에는 대
+부분의 설정이 포함되어 있지만 두 번째 요소에는 액세스 제어 특성만 포함되어 있습니다
+address-settings과 security-settings은 
+ActiveMQ에서 대상을 참조하기위해 내부적으로 사용하는 이름이 있는데 (JNDI가아님)
+전체 대상이름을 사용 EX) 대상이름이 jms-queue=MyQueue면 -> jms.queue.Myqueue
+		    EX) 대상이름이 jms-topic=MyTopic면 -> jms.queue.MyTopic.#(모든 대상이름과 일치??)
+
+address-setting은 기타설정을 하는 요소이므로 단일 기능에 중점을 둔 개체임.
+
+참조하려는 큐나 토픽의 내부주소를 알려면 cli에서 큐를 생성하고
+read-attribute속성으로 검색하면 됨
+이렇게 내부주소를 구했으면 
+address-setting에 내부주소를 넣고 특성들을 추가해주면 되는거임
+
+ex)
+./address-setting=\
+jms.queue.TestQueue:add(dead-letter-address=jms.queue.TestDLQ,\
+max-delivery-attempts=1)
+자 이렇게 특성을 추가해주고 저장해주는 대상 queue를 만들었으니
+이 큐에 대한 자세한 정보를 봐야함. 기능별 큐가 많으니 메시지별 사후처리에대해
+어떻게 처리할건지 등(만료) 
+
+ex2)
+[standalone@localhost:9990 server=default] ./address-setting=\
+jms.queue.TestQueue:read-resource
+예상 출력은 다음과 비슷합니다.
+{
+ "outcome" => "success",
+ "result" => {
+ "address-full-policy" => "PAGE",
+ "auto-create-jms-queues" => false,
+ "auto-delete-jms-queues" => false,
+ "dead-letter-address" => "jms.queue.TestDLQ",
+ "expiry-address" => undefined,
+ "expiry-delay" => -1L",
+ "last-value-queue" => false,
+ "max-delivery-attempts" => 1",
+ "max-redelivery-delay" => 0L",
+ "max-size-bytes" => -1L,
+ "message-counter-history-day-limit" => 0,
+ "page-max-cache-size" => 5,
+ "page-size-bytes" => 10485760L,
+ "redelivery-delay" => 0L",
+ "redelivery-multiplier" => 1.0,
+ "redistribution-delay" => -1L,
+ "send-to-dla-on-no-route" => false,
+ "slow-consumer-check-period" => 5L,
+ "slow-consumer-policy" => "NOTIFY",
+ "slow-consumer-threshold" => -1L
+ }
+}
+
+
+관리콘솔에서 큐/토픽페이지에따라 address-setting개체를 생성하고 구성.
+
+<메시징보안> activemq의 구성요소 중 security-setting
+• MOM 설정은 로컬 및 원격 클라이언트를 인증하는 방법과 다른 대상에 대해 이러한 클라이언트를 부여하
+는 권한을 정의합니다
+
+Activemq의 하위 시스템중 하나인 server=default에서 개체에 대한 특성을 정의하는데->네트워킹,스토리지,클러스터링등
+그 중 security-domain 특성은 클라이언트 사용자 자격 증명을 인증하고 역할을 가져오 는 데 사용할 EAP 보안 도메인을 선택합니다.
+기본 구성은 standalone.xml 또는 host.xml 파일에 구성된 ApplicationRealm을 사용하여 사용자 자격 증명을 확인하는 other 보안 도메인을 가리킵니다. 
+
+대부분의 운영 환경에서는 데이터베이스 또는 LDAP 서버에서 지원하는 다른 보안 영역을 사용하도록 기본
+messaging-activemq 하위 시스템 구성을 변경해야 합니다. 로컬 클라이언트에서 인증을 활성화해야
+할 수도 있습니다.
+
+메시징 대상에 대한 권한을 구성하기 위해 관리자는 security-setting 개체를 구성합니다. 이러한 개
+체는 내부 ActiveMQ 대상 이름과 일치하도록 와일드카드로 이름을 사용하여 address-setting 개체와
+동일한 방식으로 많이 작동됩니다.
+security-setting에는 특성이 명명된 역할에서 보유한 권한을 정의하는 유형 역할의 하위 개체가 있습
+니다. 표준 EAP 구성은 모든 사용자가 모든 대상에서 메시지를 게시하고 사용할 수 있는 단일 role=guest
+하위를 포함하는 단일 security-setting=#를 정의합니다.
+
+
+<메시지 전달 실패 처리>
+메시지는 다시 사용할 수 있도록 대상에 보관됨(데이터를 확보하도록 실패한 트랜잭션을 롤백하는 데베와 유사)
+만료개념이 있는데 대표적으로 DLQ(dead-letter queue)
+일부 메시지가 유용하지 않을 수 있거나 특정시간 프레임에서 사용하지 않는 경우
+다른 비즈니스 규칙으로 처리할 필요가 있음을 의미.
+
+Activemq의 시간지연 redelivery-delay 특성은 다음 시도 때 문제가 발생하지 않길 바라면서 실패한 메시지를 다시 배달하기 위한 시간 지연
+Activemq의 메시지 실패 후 배달 시도한건에 대해 메시지를 보내는 max-delivery-attempts
+Activemq를 통해 관리자는 address-setting개체에서 expiry-address 특성을 사용하여 만료 큐 구성가능.
+
+ex)
+[standalone@localhost:9990 server=default] ./address-setting=#:read-resource
+{
+ "outcome" => "success",
+ "result" => {
+ ...
+ "dead-letter-address" => "jms.queue.DLQ", -> activemq의 내부 주소 대상 queue에 이동된다.
+ ...
+ "max-delivery-attempts" => 10, ->10번의 시도 후 실패 메시지를
+ ...
+ "redelivery-delay" => 0L, 이동간의 배달 시도간의 지연이 없다(실패한 메시지를 dlq로 이동시 ㅅ???ㅅㅂ)...
+ ...
+이는 모든 대상에 대해(address-setting 개체 이름은 #) 10번의 시도 후 사용할 수 있는 실패한 메시지
+(max-delivery-attempts)가 jms.queue.DLQ 대상(dead-letter-address)으로 이동됨을 의
+미합니다. 배달 시도 간에는 지연이 없습니다(redelivery-delay).
+
+ex2)만약 queue에서 20분만료 설정이 되어있다면
+만료가 된 메시지를 또다른 queue로 옮길 수 있음. 이후 처리는 비즈니스로직.
+
+
+일반 메시지가 담기는 큐.
+DLQ담당 큐를 생성.
+일반 메시지가 담기는 큐에 address-setting으로 특성 개체 정의.(DLQ를 사용)
+
+EX)server=default(큐토픽등 정의하는 공간)./address-setting=(큐 토픽을 정의하는 공간에서 큐 토픽에 맞는 기능을 정의하겠다)
+jms.queue.TestQueue(기존에 만든 일반 메시지가 담긴 큐):add(dead-letter-address=jms.queue.TestDLQ,(DLQ담당 큐를 추가)
+
+만약 첫번째 메시지가 성공적으로 보내진다면 메시지가 사용이 되고.(큐에 담겨진 메시지가 사용이 되는거 같음 큐에 담기는건 어떻게?)
+애플리케이션을 중지해 두번 째 메시지가 실패한다면 DLQ에 담기고
+3번 째 메시지는 애플리케이션이 중지된 상태니 처리되지 않아 큐에 그냥 담겨짐.
+
+
+<메시징 리소스 구성>
+
+ActiveMQ 커넥터 및 어셉터
+네트워크 구성은 두 개의 구성요소를 기반으로 함.(어셉터,커넥터)
+
+Acceptor는 메시징 클라이언트로부터 연결을 허용하기위한 네트워킹 프로토콜 및 매개 변수를 정의.
+ http listener
+
+Connectoer는 ActiveMQ 서버 연결을 위한 네트워킹 프로토콜 및 매개 변수를 정의함. http프로토콜로 소켓바인딩 후 엔드포인트는 http acceptor
+
+
+EAP7은 ActiveMQ에 대한 서버와 클라이언트 역할을 하므로 기본 EAP 7 구성 파일에는 두 구성 요소 유형에 대해
+사용할 준비가 된 정의가 포함됩니다.두 종류의 ActiveMQ 어셉터 및 커넥터가 제공됨.
+
+http: HTTP연결을 통해 터널링된 네이티브 ActiveMQ 프로토콜을 사용함.
+in-vm: 메시징 클라이언트가 ActiveMA 서버와 동일한 JVM에서 실행되도록 하여 네트워킹 오버헤드 없이 연결할 수 있음.
+
+
+애플리케이션 모두 다음의 JMS 리소스를 사용합니다.
+JNDI 주소가 있는 사용자 지정 JMS 커넥션팩토리, ActiveMQ in-vm커넥터를 가리켜야함.
+ex) activemq시스템에서
+<connection-factory name="InVmConnectionFactory" connectors="in-vm"
+ entries="java:/ConnectionFactory"/>
+
+
+애플리케이션 배포시 클러스터링이 된 full-ha를 사용하는 서버 그룹에 배포하고
+모든 서버 인스턴스가 메시지를 사용하고 있는 지 확인하는 것이 중요함.
+이는 메시지 콘텐츠 프로세싱이 eap호스트 간에 배포되며 애플리케이션이 확장 가능함을 의미함.
+
+
+
+
+

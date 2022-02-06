@@ -1,3 +1,5 @@
+https://junhyunny.github.io/msa/design-pattern/distributed-transaction/
+
 <분산 트랜잭션>
 하나의 데이터베이스 인스턴스 내에서 한 트랜잭션으로 묶인 SQL문장이 모두 커밋되거나 롤백되듯이 
 네트워크로 연결된 여러 개의 데이터베이스 인스턴스가  참여하는 트랜잭션에서도 각각 다른 데이터베이스 인스턴스에서

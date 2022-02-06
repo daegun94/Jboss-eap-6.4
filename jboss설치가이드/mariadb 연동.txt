@@ -67,6 +67,16 @@ module add --name=system.layers.ext.org.mariadb --resource=jar경로
 /subsystem=datasources/jdbc-driver=mariadb:add(driver-module-name=system.layers.ext.org.mariadb,driver-name=mariadb) (데이터소스에 모듈등록)
 
 
+8.JSP파일로 mariadb crud접근 방법
+
+1.standalone-ha.xml
+서브시스템 도메인 web아래 configuration 설정
+<configuration>
+	<jsp-configuration development="true" keep-generated="false" check-interval="1" modification-test-interval="1" recompile-on-fail="true"/>
+
+2.deploy 스캐너 auto-deploy-exploaded="true"설정 (당연히 web-content false 되어있어야함 이전에 설정했음)
+
+3.deployments 디렉토리에 ROOT.war디렉토리 만들고 거기에 jsp파일 배포.
 
 
 

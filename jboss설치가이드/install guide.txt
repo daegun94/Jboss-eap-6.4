@@ -22,9 +22,8 @@ which java
 ls -al
 
 3. 디렉토리경로 중 java파일 전까지의 디렉토리경로를 저장해둬야함
- export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/jre
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/jre
 export PATH=$PATH:$JAVA_HOME/bin
-
 4. jboss bin파일로 이동(각종 실행파일) $JBOSS_HOME = jboss설치 디렉토리
 설치 디렉토리는 마음대로 생성
 

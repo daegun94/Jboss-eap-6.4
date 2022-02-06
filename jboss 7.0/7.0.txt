@@ -1,0 +1,18 @@
+<secret value="ZW9yanMxNTk2NTRA" />
+ <secret value="c2xhdmVfdXNlcl9wYXNzd29yZA=="/>
+1.standalone모드 구성.
+
+<기존 eap.7.0 설치 디렉토리 구조를 변경시키지 않기 위해 standalone모드의 구성파일을
+다른 디렉토리에 복사.>
+sudo -u jboss cp -r configuration deployments lib (생성한디렉토리경로)
+
+
+<jboss실행 시스템 프로퍼티 속성을 주어 실행.>
+sudo -u jboss ./standalone.sh -Djboss.server.base.dir=/home/vagrant/jboss-eap-7.0/jboss/standalone
+-Djboss.socket.binding.port-offset
+
+
+<관리자 웹 관리 콘솔에 접속하기 위해 standalone모드 xml파일의 interface 루프백 주소를 기본 ip주소로 변경>
+
+
+

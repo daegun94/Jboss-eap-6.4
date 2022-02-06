@@ -1,0 +1,46 @@
+1.기존 eap설치 디렉토리 변경하지 않도록 domain디렉토리 하위 폴더 다른 디렉토리로 복사
+
+2.host-master.xml의 management 루프백 주소 변경
+
+3.시크릿 base 64 확인 
+
+echo ZW9yanMxNTk2NTRA | base64 --decode
+
+4.slave로 이동해서 host-slave.xml 편집.
+secret value 추가.
+<security-realm name="ManagementRealm">
+                <server-identities>
+                    <!-- Replace this with either a base64 password of your own, or use a vault with a vault expression -->
+                    <secret value="ZW9yanMxNTk2NTRA"/>
+                </server-identities>
+
+remote user 추가.
+<domain-controller>
+        <remote username="daegun" security-realm="ManagementRealm">
+            <discovery-options>
+                <static-discovery name="primary" protocol="${jboss.domain.master.protocol:remote}" host="${jboss.domain.master.address}" port="${jboss.domain.master.port:9999}"/>
+            </discovery-options>
+        </remote>
+    </domain-controller>
+
+5. 도메인 실행, 호스트 실행
+
+도메인 ->sudo -u jboss ./domain.sh -Djboss.domain.base.dir=/home/vagrant/jboss-eap-7.0/domain-test/ --host-config=host-master.xml
+
+호스트 ->sudo -u jboss ./domain.sh -Djboss.domain.base.dir=/home/vagrant/jboss-eap-7.0/domain-test/ --host-config=host-slave.xml -Djboss.domain.master.address=192.168.56.111
+
+6. 소켓 메모리 부족시 os
+/etc/sysctl.conf
+net.core.rmem_max = 26214400
+net.core.wmem_max = 1048576
+
+sysctl -p
+
+7.cli을 사용하여 배포
+deploy path  --all-server-groups
+deploy path --server-groups=~~,~~,
+
+8.서버는 standalone의 각각 인스턴스라고 보면 될듯
+각 서버마다 애플리케이션을 실행하며
+각각의 호스트컨트롤러가 도메인 컨트롤러와 통신하며 프로세스컨트롤러가 관리
+
